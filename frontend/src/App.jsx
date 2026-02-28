@@ -141,7 +141,7 @@ export default function App() {
       {/* noise vignette */}
       <div style={{ position: 'fixed', inset: 0, background: 'radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.85) 100%)', pointerEvents: 'none', zIndex: 1 }} />
 
-      <div className="relative z-10 max-w-6xl mx-auto px-6 py-10">
+      <div className="relative z-10 max-w-screen-2xl mx-auto px-10 py-10">
 
         {/* ---- HEADER ---- */}
         <header className="text-center mb-10">
@@ -193,16 +193,16 @@ export default function App() {
             <span className="text-xs text-green-800 font-mono blink">■</span>
           </div>
 
-          <div className="p-6 md:p-8">
+          <div className="p-8 md:p-12">
             {activeTab === 'encode' ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
 
                 {/* LEFT — Image Upload */}
                 <div className="flex flex-col gap-4">
                   <label className="text-xs tracking-widest text-green-600 uppercase font-mono">// target carrier image</label>
                   <div
                     className={`upload-zone corner-deco flex flex-col items-center justify-center overflow-hidden`}
-                    style={{ height: '280px', position: 'relative' }}
+                    style={{ height: '380px', position: 'relative' }}
                     {...makeDrop(handleEncodeFile, setEncodeDrag)}
                     onClick={() => encodeFileRef.current.click()}
                   >
@@ -239,7 +239,7 @@ export default function App() {
                     <label className="text-xs tracking-widest text-green-600 uppercase font-mono block mb-2">// payload message</label>
                     <textarea
                       className="stego-textarea"
-                      rows={7}
+                      rows={11}
                       placeholder="> ENTER CLASSIFIED MESSAGE FOR EMBEDDING..."
                       value={message}
                       onChange={e => setMessage(e.target.value)}
@@ -276,14 +276,14 @@ export default function App() {
               </div>
             ) : (
               /* ===================== DECODE TAB ===================== */
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
 
                 {/* LEFT — Image Upload */}
                 <div className="flex flex-col gap-4">
                   <label className="text-xs tracking-widest" style={{ color: 'var(--cyan)', fontFamily: 'monospace' }}>// stego-image input</label>
                   <div
                     className="upload-zone corner-deco flex flex-col items-center justify-center overflow-hidden"
-                    style={{ height: '280px', position: 'relative', borderColor: 'var(--border)' }}
+                    style={{ height: '380px', position: 'relative', borderColor: 'var(--border)' }}
                     {...makeDrop(handleDecodeFile, setDecodeDrag)}
                     onClick={() => decodeFileRef.current.click()}
                   >
@@ -346,7 +346,7 @@ export default function App() {
                   )}
 
                   {!decodeResult && !decodeError && (
-                    <div className="border flex-1 flex items-center justify-center" style={{ minHeight: '160px', borderColor: 'var(--border)', background: 'rgba(0,0,0,0.3)' }}>
+                    <div className="border flex-1 flex items-center justify-center" style={{ minHeight: '260px', borderColor: 'var(--border)', background: 'rgba(0,0,0,0.3)' }}>
                       <div className="text-center">
                         <div className="text-3xl mb-3" style={{ filter: 'drop-shadow(0 0 8px var(--green-dim))' }}>◈</div>
                         <p className="text-xs tracking-widest" style={{ color: 'var(--text-dim)' }}>AWAITING EXTRACTION...</p>
