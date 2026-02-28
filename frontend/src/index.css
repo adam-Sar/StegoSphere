@@ -1,10 +1,462 @@
 @import "tailwindcss";
 
-body {
-  background-color: #11111B;
-  color: #CDD6F4;
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=VT323&display=swap');
+
+:root {
+  --green: #00ff41;
+  --green-dim: #00b32c;
+  --green-glow: rgba(0, 255, 65, 0.4);
+  --cyan: #00e5ff;
+  --cyan-dim: #0097a7;
+  --red: #ff003c;
+  --bg: #020c02;
+  --bg2: #050f05;
+  --surface: #071407;
+  --border: #1a3a1a;
+  --text: #a0ffa0;
+  --text-dim: #4a784a;
+}
+
+* {
   margin: 0;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: 'Share Tech Mono', monospace;
+  overflow-x: hidden;
+  cursor: default;
+}
+
+/* ---- Scanline overlay ---- */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 0, 0, 0.25) 2px,
+      rgba(0, 0, 0, 0.25) 4px);
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ---- Matrix rain canvas ---- */
+#matrix-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  opacity: 0.07;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ---- Glitch text effect ---- */
+.glitch {
+  position: relative;
+}
+
+.glitch::before,
+.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.glitch::before {
+  color: var(--cyan);
+  animation: glitch-1 2.5s infinite linear;
+  clip-path: polygon(0 0, 100% 0, 100% 35%, 0 35%);
+  transform: translateX(-3px);
+}
+
+.glitch::after {
+  color: var(--red);
+  animation: glitch-2 2.5s infinite linear;
+  clip-path: polygon(0 65%, 100% 65%, 100% 100%, 0 100%);
+  transform: translateX(3px);
+}
+
+@keyframes glitch-1 {
+
+  0%,
+  90%,
+  94%,
+  100% {
+    transform: translateX(0);
+    opacity: 0;
+  }
+
+  91%,
+  93% {
+    transform: translateX(-4px);
+    opacity: 1;
+  }
+}
+
+@keyframes glitch-2 {
+
+  0%,
+  90%,
+  94%,
+  100% {
+    transform: translateX(0);
+    opacity: 0;
+  }
+
+  92%,
+  93% {
+    transform: translateX(4px);
+    opacity: 1;
+  }
+}
+
+/* ---- Neon border ---- */
+.neon-border {
+  border: 1px solid var(--green-dim);
+  box-shadow: 0 0 6px var(--green-glow), inset 0 0 6px rgba(0, 255, 65, 0.05);
+  transition: box-shadow 0.3s ease;
+}
+
+.neon-border:hover {
+  box-shadow: 0 0 16px var(--green-glow), 0 0 40px rgba(0, 255, 65, 0.15), inset 0 0 12px rgba(0, 255, 65, 0.05);
+}
+
+.neon-border-cyan {
+  border: 1px solid var(--cyan-dim);
+  box-shadow: 0 0 8px rgba(0, 229, 255, 0.3), inset 0 0 8px rgba(0, 229, 255, 0.03);
+}
+
+/* ---- Corner decorators ---- */
+.corner-deco {
+  position: relative;
+}
+
+.corner-deco::before,
+.corner-deco::after {
+  content: '';
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-color: var(--green);
+  border-style: solid;
+}
+
+.corner-deco::before {
+  top: -1px;
+  left: -1px;
+  border-width: 2px 0 0 2px;
+}
+
+.corner-deco::after {
+  bottom: -1px;
+  right: -1px;
+  border-width: 0 2px 2px 0;
+}
+
+/* ---- Blinking cursor ---- */
+.blink {
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
+}
+
+/* ---- Typing animation ---- */
+@keyframes typing {
+  from {
+    width: 0;
+  }
+
+  to {
+    width: 100%;
+  }
+}
+
+/* ---- Progress bar glitch ---- */
+.progress-bar {
+  height: 2px;
+  background: linear-gradient(90deg, var(--green), var(--cyan));
+  box-shadow: 0 0 10px var(--green);
+  animation: progress-scan 1.5s ease-in-out infinite;
+}
+
+@keyframes progress-scan {
+  0% {
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+
+  50% {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+
+  51% {
+    transform: scaleX(1);
+    transform-origin: right;
+  }
+
+  100% {
+    transform: scaleX(0);
+    transform-origin: right;
+  }
+}
+
+/* ---- Hex grid background ---- */
+.hex-bg {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='49' viewBox='0 0 28 49'%3E%3Cg fill-rule='evenodd'%3E%3Cg id='hexagons' fill='%2300ff41' fill-opacity='0.03' fill-rule='nonzero'%3E%3Cpath d='M13.99 9.25l13 7.5v15l-13 7.5L1 31.75v-15l12.99-7.5zM3 17.9v12.7l10.99 6.34 11-6.35V17.9l-11-6.34L3 17.9zM0 15l12.98-7.5V0h-2v6.35L0 12.69v2.3zm0 18.5L12.98 41v8h-2v-6.85L0 35.81v-2.3zM15 0v7.5L27.99 15H28v-2.31h-.01L17 6.35V0h-2zm0 49v-8l12.99-7.5H28v2.31h-.01L17 42.15V49h-2z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* ---- Custom scrollbar ---- */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--green-dim);
+  border-radius: 0;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--green);
+}
+
+/* ---- Input styles ---- */
+.stego-input {
+  background: rgba(0, 255, 65, 0.03);
+  border: 1px solid var(--border);
+  color: var(--green);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.9rem;
+  padding: 0.75rem 1rem;
+  width: 100%;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.stego-input:focus {
+  border-color: var(--green-dim);
+  box-shadow: 0 0 12px var(--green-glow);
+  background: rgba(0, 255, 65, 0.05);
+}
+
+.stego-input::placeholder {
+  color: var(--text-dim);
+}
+
+/* ---- Button styles ---- */
+.stego-btn {
+  position: relative;
+  background: transparent;
+  border: 1px solid var(--green);
+  color: var(--green);
+  font-family: 'Orbitron', monospace;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  padding: 0.9rem 1.5rem;
+  cursor: pointer;
+  overflow: hidden;
+  text-transform: uppercase;
+  transition: color 0.3s, box-shadow 0.3s;
+  width: 100%;
+}
+
+.stego-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: var(--green);
+  transition: left 0.3s ease;
+  z-index: 0;
+}
+
+.stego-btn:hover::before {
+  left: 0;
+}
+
+.stego-btn:hover {
+  color: var(--bg);
+  box-shadow: 0 0 20px var(--green-glow);
+}
+
+.stego-btn span {
+  position: relative;
+  z-index: 1;
+}
+
+.stego-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.stego-btn:disabled::before {
+  left: -100%;
+}
+
+.stego-btn:disabled:hover {
+  color: var(--green);
+  box-shadow: none;
+}
+
+.stego-btn-cyan {
+  border-color: var(--cyan);
+  color: var(--cyan);
+}
+
+.stego-btn-cyan::before {
+  background: var(--cyan);
+}
+
+.stego-btn-cyan:hover {
+  color: var(--bg);
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.4);
+}
+
+/* ---- Textarea ---- */
+.stego-textarea {
+  background: rgba(0, 255, 65, 0.02);
+  border: 1px solid var(--border);
+  color: var(--green);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.85rem;
+  padding: 1rem;
+  width: 100%;
+  resize: none;
+  outline: none;
+  line-height: 1.6;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.stego-textarea:focus {
+  border-color: var(--green-dim);
+  box-shadow: 0 0 12px var(--green-glow);
+}
+
+.stego-textarea::placeholder {
+  color: var(--text-dim);
+}
+
+/* ---- Upload zone ---- */
+.upload-zone {
+  border: 1px dashed var(--border);
+  background: rgba(0, 255, 65, 0.01);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.upload-zone:hover,
+.upload-zone.drag-over {
+  border-color: var(--green-dim);
+  background: rgba(0, 255, 65, 0.04);
+  box-shadow: inset 0 0 20px rgba(0, 255, 65, 0.05);
+}
+
+/* ---- Tab ---- */
+.tab-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-family: 'Orbitron', monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  padding: 0.75rem 2rem;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.2s;
+  position: relative;
+  clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+}
+
+.tab-btn.active {
+  background: rgba(0, 255, 65, 0.08);
+  border-color: var(--green-dim);
+  color: var(--green);
+  box-shadow: 0 0 15px var(--green-glow);
+}
+
+.tab-btn:hover:not(.active) {
+  border-color: var(--text-dim);
+  color: var(--text);
+}
+
+/* ---- Status tag ---- */
+.status-ok {
+  color: #00ff41;
+}
+
+.status-err {
+  color: var(--red);
+  text-shadow: 0 0 6px var(--red);
+}
+
+/* ---- Flicker on load ---- */
+@keyframes flicker {
+
+  0%,
+  19%,
+  21%,
+  23%,
+  25%,
+  54%,
+  56%,
+  100% {
+    opacity: 1;
+  }
+
+  20%,
+  22%,
+  24%,
+  55% {
+    opacity: 0.4;
+  }
+}
+
+.flicker {
+  animation: flicker 0.5s ease forwards;
+}
+
+/* ---- Pulse ring ---- */
+@keyframes ping-slow {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+.ping-slow {
+  animation: ping-slow 2s ease-out infinite;
 }

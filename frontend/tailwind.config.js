@@ -6,14 +6,26 @@ export default {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        mono: ['"Share Tech Mono"', 'monospace'],
+        orbitron: ['Orbitron', 'monospace'],
+      },
       colors: {
-        'stegobg': '#11111B',
-        'stegosurface': '#1E1E2E',
-        'stegolight': '#313244',
-        'stegotext': '#CDD6F4',
-        'stegoaccent': '#cba6f7',
-        'stegohover': '#b4befe',
-      }
+        green: {
+          DEFAULT: '#00ff41',
+          dim: '#00b32c',
+          700: '#1a7a2e',
+          800: '#0d4a1a',
+          900: '#062b10',
+        },
+        cyan: {
+          DEFAULT: '#00e5ff',
+          dim: '#0097a7',
+        },
+      },
+      animation: {
+        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+      },
     },
   },
   plugins: [],
