@@ -1,5 +1,6 @@
 import io
 import os
+import math
 import hashlib
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.responses import StreamingResponse
@@ -228,6 +229,89 @@ async def api_decode(
         secret_message = extract_message(img, password)
         
         return {"success": True, "message": secret_message}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+def calculate_entropy(data):
+    if not data:
+        return 0
+    entropy = 0
+    for x in range(256):
+        p_x = float(data.count(x))/len(data)
+        if p_x > 0:
+            entropy += - p_x*math.log(p_x, 2)
+    return entropy
+
+@app.post("/api/analyze")
+async def api_analyze(file: UploadFile = File(...)):
+    try:
+        image_data = await file.read()
+        img = Image.open(io.BytesIO(image_data))
+        width, height = img.size
+        # format and mode
+        capacity_bytes = (width * height * 3) // 8
+        
+        # We can analyze LSBs of a small block to estimate entropy
+        img_rgb = img.convert('RGB')
+        pixels = img_rgb.load()
+        sample_lsbs = bytearray()
+        
+        # Sample up to 10,000 pixels max for speed
+        count = 0
+        for y in range(min(height, 100)):
+            for x in range(min(width, 100)):
+                r, g, b = pixels[x, y]
+                sample_lsbs.append(r & 1)
+                sample_lsbs.append(g & 1)
+                sample_lsbs.append(b & 1)
+                count += 1
+                
+        lsb_entropy = calculate_entropy(sample_lsbs)
+        
+        # High entropy in LSB usually means stego (near 1.0 for binary data if uniformly random encrypt, but it's calculated over 0/1 so max is 1.0 in bits)
+        # Actually count(0) and count(1) out of `data` which has values 0 and 1.
+        # Entropy for binary is 1.0 max.
+        stego_suspected = lsb_entropy > 0.95
+        
+        return {
+            "success": True,
+            "dimensions": f"{width}x{height}",
+            "format": img.format or "UNKNOWN",
+            "capacity_bytes": capacity_bytes,
+            "lsb_entropy": round(lsb_entropy, 4),
+            "stego_suspected": stego_suspected
+        }
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+def sanitize_image(img: Image.Image) -> Image.Image:
+    img = img.convert('RGB')
+    pixels = img.load()
+    width, height = img.size
+    for y in range(height):
+        for x in range(width):
+            r, g, b = pixels[x, y]
+            pixels[x, y] = (r & ~1, g & ~1, b & ~1)
+    return img
+
+@app.post("/api/sanitize")
+async def api_sanitize(file: UploadFile = File(...)):
+    try:
+        image_data = await file.read()
+        img = Image.open(io.BytesIO(image_data))
+        clean_img = sanitize_image(img)
+        
+        img_io = io.BytesIO()
+        clean_img.save(img_io, format="PNG")
+        img_io.seek(0)
+        
+        return StreamingResponse(
+            img_io,
+            media_type="image/png",
+            headers={
+                "Content-Disposition": f"attachment; filename=sanitized_{file.filename.split('.')[0]}.png"
+            }
+        )
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
