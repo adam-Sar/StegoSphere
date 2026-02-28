@@ -207,10 +207,7 @@ async def api_encode(
         # Return as downloadable PNG
         return StreamingResponse(
             img_io,
-            media_type="image/png",
-            headers={
-                "Content-Disposition": f"attachment; filename=stego_{file.filename.split('.')[0]}.png"
-            }
+            media_type="image/png"
         )
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
