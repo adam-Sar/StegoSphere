@@ -287,6 +287,7 @@ body::before {
   text-transform: uppercase;
   transition: color 0.3s, box-shadow 0.3s;
   width: 100%;
+  z-index: 20;
 }
 
 .stego-btn::before {
@@ -299,6 +300,7 @@ body::before {
   background: var(--green);
   transition: left 0.3s ease;
   z-index: 0;
+  pointer-events: none;
 }
 
 .stego-btn:hover::before {
@@ -341,6 +343,36 @@ body::before {
 .stego-btn-cyan:hover {
   color: var(--bg);
   box-shadow: 0 0 20px rgba(0, 229, 255, 0.4);
+}
+
+/* Red Variant */
+.stego-btn-red {
+  border-color: var(--red);
+  color: var(--red);
+}
+
+.stego-btn-red::before {
+  background: var(--red);
+}
+
+.stego-btn-red:hover {
+  color: var(--bg);
+  box-shadow: 0 0 20px rgba(255, 59, 48, 0.4);
+}
+
+/* Yellow Variant */
+.stego-btn-yellow {
+  border-color: var(--yellow);
+  color: var(--yellow);
+}
+
+.stego-btn-yellow::before {
+  background: var(--yellow);
+}
+
+.stego-btn-yellow:hover {
+  color: var(--bg);
+  box-shadow: 0 0 20px rgba(255, 204, 0, 0.4);
 }
 
 /* ---- Textarea ---- */

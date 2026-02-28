@@ -185,17 +185,24 @@ const Textarea = ({ className = "", ...props }) => (
 );
 
 const Button = ({ children, variant = "primary", icon: Icon, isLoading, className = "", ...props }) => {
-  const isCyan = variant === "secondary";
-  const btnClass = isCyan ? "stego-btn-cyan" : "stego-btn";
+  const variantClasses = {
+    primary: "stego-btn",
+    secondary: "stego-btn stego-btn-cyan",
+    cyan: "stego-btn stego-btn-cyan",
+    yellow: "stego-btn stego-btn-yellow",
+    red: "stego-btn stego-btn-red",
+  };
+
+  const btnClass = variantClasses[variant] || variantClasses.primary;
 
   return (
     <button
-      className={`relative background-transparent border px-6 py-3.5 cursor-pointer overflow-hidden font-orbitron text-xs tracking-widest uppercase transition-all duration-300 w-full flex items-center justify-center gap-2 group ${btnClass} ${className}`}
+      className={`relative bg-transparent border px-6 py-3.5 cursor-pointer overflow-hidden font-orbitron text-xs tracking-widest uppercase transition-all duration-300 w-full flex items-center justify-center group ${btnClass} ${className}`}
       disabled={isLoading || props.disabled}
       {...props}
     >
       {/* Button hover slide cover is handled in CSS, just need the base classes */}
-      <span className="relative z-10 flex items-center gap-2 whitespace-nowrap">
+      <span className="relative z-10 flex items-center justify-center gap-2 whitespace-nowrap w-full h-full pointer-events-none">
         {isLoading ? <Activity className="animate-spin" size={16} /> : Icon && <Icon size={16} className="group-hover:-translate-y-0.5 transition-transform" />}
         {children}
       </span>
@@ -612,8 +619,8 @@ export default function App() {
               {/* ENCODE */}
               <button
                 className={`relative px-4 py-4 md:py-5 border transition-all text-left flex items-center justify-between group overflow-hidden ${activeTab === 'encode'
-                    ? 'bg-green-500/10 border-green-500 text-green-400 shadow-[0_0_15px_rgba(0,255,65,0.15)]'
-                    : 'bg-black/50 border-green-900/50 text-green-800 hover:text-green-600 hover:border-green-700'
+                  ? 'bg-green-500/10 border-green-500 text-green-400 shadow-[0_0_15px_rgba(0,255,65,0.15)]'
+                  : 'bg-black/50 border-green-900/50 text-green-800 hover:text-green-600 hover:border-green-700'
                   }`}
                 onClick={() => setActiveTab('encode')}
               >
@@ -628,8 +635,8 @@ export default function App() {
               {/* DECODE */}
               <button
                 className={`relative px-4 py-4 md:py-5 border transition-all text-left flex items-center justify-between group overflow-hidden ${activeTab === 'decode'
-                    ? 'bg-cyan-500/10 border-cyan-500 text-cyan-400 shadow-[0_0_15px_rgba(0,229,255,0.15)]'
-                    : 'bg-black/50 border-green-900/50 text-green-800 hover:text-cyan-600 hover:border-cyan-700'
+                  ? 'bg-cyan-500/10 border-cyan-500 text-cyan-400 shadow-[0_0_15px_rgba(0,229,255,0.15)]'
+                  : 'bg-black/50 border-green-900/50 text-green-800 hover:text-cyan-600 hover:border-cyan-700'
                   }`}
                 onClick={() => setActiveTab('decode')}
               >
@@ -644,8 +651,8 @@ export default function App() {
               {/* ANALYZE */}
               <button
                 className={`relative px-4 py-4 md:py-5 border transition-all text-left flex items-center justify-between group overflow-hidden ${activeTab === 'analyze'
-                    ? 'bg-yellow-500/10 border-yellow-500 text-yellow-400 shadow-[0_0_15px_rgba(255,204,0,0.15)]'
-                    : 'bg-black/50 border-green-900/50 text-green-800 hover:text-yellow-600 hover:border-yellow-700'
+                  ? 'bg-yellow-500/10 border-yellow-500 text-yellow-400 shadow-[0_0_15px_rgba(255,204,0,0.15)]'
+                  : 'bg-black/50 border-green-900/50 text-green-800 hover:text-yellow-600 hover:border-yellow-700'
                   }`}
                 onClick={() => setActiveTab('analyze')}
               >
@@ -660,8 +667,8 @@ export default function App() {
               {/* SANITIZE */}
               <button
                 className={`relative px-4 py-4 md:py-5 border transition-all text-left flex items-center justify-between group overflow-hidden ${activeTab === 'sanitize'
-                    ? 'bg-red-500/10 border-red-500 text-red-500 shadow-[0_0_15px_rgba(255,59,48,0.15)]'
-                    : 'bg-black/50 border-green-900/50 text-green-800 hover:text-red-600 hover:border-red-700'
+                  ? 'bg-red-500/10 border-red-500 text-red-500 shadow-[0_0_15px_rgba(255,59,48,0.15)]'
+                  : 'bg-black/50 border-green-900/50 text-green-800 hover:text-red-600 hover:border-red-700'
                   }`}
                 onClick={() => setActiveTab('sanitize')}
               >
@@ -1022,9 +1029,8 @@ export default function App() {
                                 placeholder="ENTER PASSPHRASE TO BREAK CIPHER..."
                                 value={decodePassword}
                                 onChange={e => setDecodePassword(e.target.value)}
-                                className="!border-cyan-900/60 focus:!border-cyan-500 focus:!shadow-[0_0_12px_rgba(0,229,255,0.2)] !text-cyan-400"
+                                className="!border-cyan-900/60 focus:!border-cyan-500 focus:!shadow-[0_0_12px_rgba(0,229,255,0.2)] !text-cyan-400 cursor-pointer"
                                 style={{ width: '100%' }}
-                                cursor='pointer'
                               />
                             </div>
                             {/* Action Button */}
@@ -1167,12 +1173,11 @@ export default function App() {
                           <div className="flex flex-col gap-6 h-full">
                             <div>
                               <Button
-                                variant="secondary"
+                                variant="yellow"
                                 icon={BarChart2}
                                 onClick={handleAnalyze}
                                 isLoading={analyzeStatus === 'processing'}
                                 disabled={!analyzeImage || analyzeStatus === 'processing'}
-                                className="!border-yellow-500 !text-yellow-500 hover:!bg-yellow-500 hover:!text-black"
                               >
                                 {analyzeStatus === 'processing' ? 'RUNNING ESTIMATOR...' : 'RUN STRUCTURAL ANALYSIS'}
                               </Button>
@@ -1284,12 +1289,11 @@ export default function App() {
                               </p>
 
                               <Button
-                                variant="secondary"
+                                variant="red"
                                 icon={ShieldOff}
                                 onClick={handleSanitize}
                                 isLoading={sanitizeStatus === 'processing'}
                                 disabled={!sanitizeImage || sanitizeStatus === 'processing'}
-                                className="!border-red-500 !text-red-500 hover:!bg-red-500 hover:!text-black"
                               >
                                 {sanitizeStatus === 'processing' ? 'WIPING LSB DATA...' : 'INITIATE LSB PURGE'}
                               </Button>
