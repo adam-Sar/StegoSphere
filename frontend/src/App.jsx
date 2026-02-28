@@ -832,7 +832,7 @@ export default function App() {
                       {/* ENCODE: Payload Definition (Right col on Desktop) */}
                       <div className="lg:col-span-7 flex flex-col gap-6">
 
-                        <Card title="CRYPTOGRAPHIC_PAYLOAD_CONFIG" icon={Zap} className="flex-1">
+                        <Card title="CRYPTOGRAPHIC_PAYLOAD_CONFIG" icon={Zap} className="flex-1" showGlow={false}>
 
                           <div className="flex flex-col gap-6 flex-1 h-full">
                             {/* TextArea Section */}
@@ -1163,7 +1163,7 @@ export default function App() {
                       </div>
 
                       <div className="lg:col-span-7 flex flex-col gap-6">
-                        <Card title="DATA_FORENSICS" icon={Activity} glowColor="var(--yellow-dim)" className="flex-1 !border-yellow-900/40">
+                        <Card title="DATA_FORENSICS" icon={Activity} glowColor="var(--yellow-dim)" className="flex-1 !border-yellow-900/40" showGlow={false}>
                           <div className="flex flex-col gap-6 h-full">
                             <div>
                               <Button
@@ -1276,7 +1276,7 @@ export default function App() {
                       </div>
 
                       <div className="lg:col-span-7 flex flex-col gap-6">
-                        <Card title="LSB_SCRUB_SEQUENCE" icon={Activity} glowColor="var(--red-dim)" className="flex-1 !border-red-900/40">
+                        <Card title="LSB_SCRUB_SEQUENCE" icon={Activity} glowColor="var(--red-dim)" className="flex-1 !border-red-900/40" showGlow={false}>
                           <div className="flex flex-col gap-6 h-full">
                             <div>
                               <p className="text-red-500/80 font-mono text-xs mb-4">
