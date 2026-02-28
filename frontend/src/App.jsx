@@ -294,9 +294,11 @@ export default function App() {
     if (!file) return;
 
     // Basic validation
-    const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
-    if (!validTypes.includes(file.type)) {
-      pushLog(setEncodeLog, `> ERR: Invalid file format: ${file.type}. Expected PNG, JPG, or WEBP.`);
+    const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/pjpeg', 'image/x-png'];
+    const isImage = file.type.startsWith('image/') || validTypes.includes(file.type);
+
+    if (!isImage) {
+      pushLog(setEncodeLog, `> ERR: Invalid file format: ${file.type}. Expected an image.`);
       return;
     }
 
@@ -369,7 +371,13 @@ export default function App() {
 
     try {
       pushLog(setEncodeLog, '> TRANSMITTING TO CRYPTO ENGINE...');
-      const res = await fetch(`${API_BASE}/api/encode`, { method: 'POST', body: formData });
+      const res = await fetch(`${API_BASE}/api/encode`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'ngrok-skip-browser-warning': 'true'
+        }
+      });
 
       if (!res.ok) {
         const e = await res.json().catch(() => ({ detail: 'Unknown backend error' }));
@@ -410,7 +418,13 @@ export default function App() {
     if (decodePassword) formData.append('password', decodePassword);
 
     try {
-      const res = await fetch(`${API_BASE}/api/decode`, { method: 'POST', body: formData });
+      const res = await fetch(`${API_BASE}/api/decode`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'ngrok-skip-browser-warning': 'true'
+        }
+      });
 
       const data = await res.json().catch(() => null);
 
@@ -448,7 +462,13 @@ export default function App() {
     formData.append('file', sanitizeImage);
 
     try {
-      const res = await fetch(`${API_BASE}/api/sanitize`, { method: 'POST', body: formData });
+      const res = await fetch(`${API_BASE}/api/sanitize`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'ngrok-skip-browser-warning': 'true'
+        }
+      });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
       const blob = await res.blob();
@@ -473,7 +493,13 @@ export default function App() {
     formData.append('file', analyzeImage);
 
     try {
-      const res = await fetch(`${API_BASE}/api/analyze`, { method: 'POST', body: formData });
+      const res = await fetch(`${API_BASE}/api/analyze`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'ngrok-skip-browser-warning': 'true'
+        }
+      });
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail);
 
@@ -581,9 +607,14 @@ export default function App() {
           <div className="w-full xl:w-64 shrink-0 flex flex-col gap-6">
 
             {/* Primary Navigation Tabs - Vertical on Desktop */}
-            <div className="flex flex-row xl:flex-col gap-3">
+            {/* Primary Navigation Tabs - Vertical on Desktop */}
+            <div className="flex flex-row xl:flex-col gap-3 flex-wrap xl:flex-nowrap">
+              {/* ENCODE */}
               <button
-                className={`relative px-4 py-4 md:py-5 border transition-all text-left flex items-center justify-between group overflow-hidden ${activeTab === 'encode' ? 'bg-green-500/10 border-green-500 text-green-400 shadow-[0_0_15px_rgba(0,255,65,0.15)]' : 'bg-black/50 border-green-900/50 text-green-800 hover:text-green-600 hover:border-green-700'}`}
+                className={`relative px-4 py-4 md:py-5 border transition-all text-left flex items-center justify-between group overflow-hidden ${activeTab === 'encode'
+                    ? 'bg-green-500/10 border-green-500 text-green-400 shadow-[0_0_15px_rgba(0,255,65,0.15)]'
+                    : 'bg-black/50 border-green-900/50 text-green-800 hover:text-green-600 hover:border-green-700'
+                  }`}
                 onClick={() => setActiveTab('encode')}
               >
                 {activeTab === 'encode' && <span className="absolute left-0 top-0 bottom-0 w-1 bg-green-500 shadow-[0_0_10px_#00ff41]" />}
@@ -594,39 +625,52 @@ export default function App() {
                 <span className={`text-[10px] hidden sm:block opacity-50 ${activeTab === 'encode' ? 'opacity-100' : ''}`}>[01]</span>
               </button>
 
+              {/* DECODE */}
               <button
-                className={`relative px-4 py-4 md:py-5 border transition-all text-left flex items-center justify-between group overflow-hidden ${activeTab === 'decode' ? 'bg-cyan-500/10 border-cyan-500 text-cyan-400 shadow-[0_0_15px_rgba(0,229,255,0.15)]' : 'bg-black/50 border-green-900/50 text-green-800 hover:text-cyan-800 hover:border-cyan-900'}`}
+                className={`relative px-4 py-4 md:py-5 border transition-all text-left flex items-center justify-between group overflow-hidden ${activeTab === 'decode'
+                    ? 'bg-cyan-500/10 border-cyan-500 text-cyan-400 shadow-[0_0_15px_rgba(0,229,255,0.15)]'
+                    : 'bg-black/50 border-green-900/50 text-green-800 hover:text-cyan-600 hover:border-cyan-700'
+                  }`}
                 onClick={() => setActiveTab('decode')}
               >
                 {activeTab === 'decode' && <span className="absolute left-0 top-0 bottom-0 w-1 bg-cyan-500 shadow-[0_0_10px_#00e5ff]" />}
                 <div className="flex items-center gap-3 relative z-10">
                   <Unlock size={18} className={activeTab === 'decode' ? 'text-cyan-400' : ''} />
                   <span className="font-orbitron tracking-widest text-xs font-bold">DECODE</span>
-                  <button
-                    className={`relative px-4 py-4 md:py-5 border transition-all text-left flex items-center justify-between group overflow-hidden ${activeTab === 'analyze' ? 'bg-yellow-500/10 border-yellow-500 text-yellow-400 shadow-[0_0_15px_rgba(255,204,0,0.15)]' : 'bg-black/50 border-green-900/50 text-green-800 hover:text-yellow-600 hover:border-yellow-700'}`}
-                    onClick={() => setActiveTab('analyze')}
-                  >
-                    {activeTab === 'analyze' && <span className="absolute left-0 top-0 bottom-0 w-1 bg-yellow-500 shadow-[0_0_10px_#ffcc00]" />}
-                    <div className="flex items-center gap-3 relative z-10">
-                      <BarChart2 size={18} className={activeTab === 'analyze' ? 'text-yellow-400' : ''} />
-                      <span className="font-orbitron tracking-widest text-xs font-bold">ANALYZE</span>
-                    </div>
-                    <span className={`text-[10px] hidden sm:block opacity-50 ${activeTab === 'analyze' ? 'opacity-100' : ''}`}>[03]</span>
-                  </button>
-
-                  <button
-                    className={`relative px-4 py-4 md:py-5 border transition-all text-left flex items-center justify-between group overflow-hidden ${activeTab === 'sanitize' ? 'bg-red-500/10 border-red-500 text-red-500 shadow-[0_0_15px_rgba(255,59,48,0.15)]' : 'bg-black/50 border-green-900/50 text-green-800 hover:text-red-600 hover:border-red-700'}`}
-                    onClick={() => setActiveTab('sanitize')}
-                  >
-                    {activeTab === 'sanitize' && <span className="absolute left-0 top-0 bottom-0 w-1 bg-red-500 shadow-[0_0_10px_#ff3b30]" />}
-                    <div className="flex items-center gap-3 relative z-10">
-                      <ShieldOff size={18} className={activeTab === 'sanitize' ? 'text-red-500' : ''} />
-                      <span className="font-orbitron tracking-widest text-xs font-bold">SANITIZE</span>
-                    </div>
-                    <span className={`text-[10px] hidden sm:block opacity-50 ${activeTab === 'sanitize' ? 'opacity-100' : ''}`}>[04]</span>
-                  </button>
                 </div>
                 <span className={`text-[10px] hidden sm:block opacity-50 ${activeTab === 'decode' ? 'opacity-100' : ''}`}>[02]</span>
+              </button>
+
+              {/* ANALYZE */}
+              <button
+                className={`relative px-4 py-4 md:py-5 border transition-all text-left flex items-center justify-between group overflow-hidden ${activeTab === 'analyze'
+                    ? 'bg-yellow-500/10 border-yellow-500 text-yellow-400 shadow-[0_0_15px_rgba(255,204,0,0.15)]'
+                    : 'bg-black/50 border-green-900/50 text-green-800 hover:text-yellow-600 hover:border-yellow-700'
+                  }`}
+                onClick={() => setActiveTab('analyze')}
+              >
+                {activeTab === 'analyze' && <span className="absolute left-0 top-0 bottom-0 w-1 bg-yellow-500 shadow-[0_0_10px_#ffcc00]" />}
+                <div className="flex items-center gap-3 relative z-10">
+                  <BarChart2 size={18} className={activeTab === 'analyze' ? 'text-yellow-400' : ''} />
+                  <span className="font-orbitron tracking-widest text-xs font-bold">ANALYZE</span>
+                </div>
+                <span className={`text-[10px] hidden sm:block opacity-50 ${activeTab === 'analyze' ? 'opacity-100' : ''}`}>[03]</span>
+              </button>
+
+              {/* SANITIZE */}
+              <button
+                className={`relative px-4 py-4 md:py-5 border transition-all text-left flex items-center justify-between group overflow-hidden ${activeTab === 'sanitize'
+                    ? 'bg-red-500/10 border-red-500 text-red-500 shadow-[0_0_15px_rgba(255,59,48,0.15)]'
+                    : 'bg-black/50 border-green-900/50 text-green-800 hover:text-red-600 hover:border-red-700'
+                  }`}
+                onClick={() => setActiveTab('sanitize')}
+              >
+                {activeTab === 'sanitize' && <span className="absolute left-0 top-0 bottom-0 w-1 bg-red-500 shadow-[0_0_10px_#ff3b30]" />}
+                <div className="flex items-center gap-3 relative z-10">
+                  <ShieldOff size={18} className={activeTab === 'sanitize' ? 'text-red-500' : ''} />
+                  <span className="font-orbitron tracking-widest text-xs font-bold">SANITIZE</span>
+                </div>
+                <span className={`text-[10px] hidden sm:block opacity-50 ${activeTab === 'sanitize' ? 'opacity-100' : ''}`}>[04]</span>
               </button>
             </div>
 
