@@ -2,6 +2,7 @@ import io
 import os
 import math
 import hashlib
+from datetime import datetime, timedelta
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -9,6 +10,7 @@ from PIL import Image
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives import hashes
+from typing import Dict, List
 
 app = FastAPI(title="StegoSphere API")
 
@@ -20,6 +22,18 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# In-memory storage for statistics (in production, use a database)
+operation_stats = {
+    "total_operations": 0,
+    "encode_count": 0,
+    "decode_count": 0,
+    "analyze_count": 0,
+    "sanitize_count": 0,
+    "success_count": 0,
+    "failure_count": 0,
+    "recent_operations": []
+}
 
 # ----------------------------------------------------------------------
 # Core Algorithms
@@ -182,8 +196,73 @@ def extract_message(img: Image.Image, password: str = "") -> str:
     return decrypted_data[4:].decode('utf-8')
 
 # ----------------------------------------------------------------------
+# Helper Functions
+# ----------------------------------------------------------------------
+
+def record_operation(op_type: str, success: bool, details: str = ""):
+    """Record an operation in the statistics."""
+    operation_stats["total_operations"] += 1
+    operation_stats[f"{op_type}_count"] += 1
+    
+    if success:
+        operation_stats["success_count"] += 1
+    else:
+        operation_stats["failure_count"] += 1
+    
+    # Add to recent operations (keep last 50)
+    operation_stats["recent_operations"].insert(0, {
+        "id": hashlib.md5(f"{datetime.now().isoformat()}{op_type}".encode()).hexdigest()[:8],
+        "type": op_type,
+        "status": "SUCCESS" if success else "FAILED",
+        "details": details,
+        "timestamp": datetime.now().isoformat()
+    })
+    
+    # Keep only last 50 operations
+    if len(operation_stats["recent_operations"]) > 50:
+        operation_stats["recent_operations"] = operation_stats["recent_operations"][:50]
+
+# ----------------------------------------------------------------------
 # API Endpoints
 # ----------------------------------------------------------------------
+
+@app.get("/api/stats")
+async def get_stats():
+    """Get dashboard statistics."""
+    total = operation_stats["total_operations"]
+    success_rate = (operation_stats["success_count"] / total * 100) if total > 0 else 100.0
+    
+    # Calculate operations this week
+    one_week_ago = datetime.now() - timedelta(days=7)
+    operations_this_week = sum(
+        1 for op in operation_stats["recent_operations"]
+        if datetime.fromisoformat(op["timestamp"]) >= one_week_ago
+    )
+    
+    # Calculate weekly data (last 7 days)
+    weekly_data = []
+    for i in range(7):
+        day_date = (datetime.now() - timedelta(days=6-i)).date()
+        day_operations = sum(
+            1 for op in operation_stats["recent_operations"]
+            if datetime.fromisoformat(op["timestamp"]).date() == day_date
+        )
+        weekly_data.append({
+            "date": day_date.isoformat(),
+            "count": day_operations
+        })
+    
+    return {
+        "total_operations": total,
+        "success_rate": round(success_rate, 2),
+        "operations_this_week": operations_this_week,
+        "encode_count": operation_stats["encode_count"],
+        "decode_count": operation_stats["decode_count"],
+        "analyze_count": operation_stats["analyze_count"],
+        "sanitize_count": operation_stats["sanitize_count"],
+        "weekly_data": weekly_data,
+        "recent_operations": operation_stats["recent_operations"][:10]
+    }
 
 @app.post("/api/encode")
 async def api_encode(
@@ -204,12 +283,16 @@ async def api_encode(
         stego_img.save(img_io, format="PNG")
         img_io.seek(0)
         
+        # Record successful operation
+        record_operation("encode", True, f"Secured {len(message)} bytes into {file.name}")
+        
         # Return as downloadable PNG
         return StreamingResponse(
             img_io,
             media_type="image/png"
         )
     except Exception as e:
+        record_operation("encode", False, str(e))
         raise HTTPException(status_code=400, detail=str(e))
 
 @app.post("/api/decode")
@@ -225,8 +308,12 @@ async def api_decode(
         # Extract the message
         secret_message = extract_message(img, password)
         
+        # Record successful operation
+        record_operation("decode", True, f"Extracted {len(secret_message)} chars from {file.name}")
+        
         return {"success": True, "message": secret_message}
     except Exception as e:
+        record_operation("decode", False, str(e))
         raise HTTPException(status_code=400, detail=str(e))
 
 def calculate_entropy(data):
@@ -270,6 +357,9 @@ async def api_analyze(file: UploadFile = File(...)):
         # Entropy for binary is 1.0 max.
         stego_suspected = lsb_entropy > 0.95
         
+        # Record successful operation
+        record_operation("analyze", True, f"Analyzed {file.name} ({width}x{height})")
+        
         return {
             "success": True,
             "dimensions": f"{width}x{height}",
@@ -279,6 +369,7 @@ async def api_analyze(file: UploadFile = File(...)):
             "stego_suspected": stego_suspected
         }
     except Exception as e:
+        record_operation("analyze", False, str(e))
         raise HTTPException(status_code=400, detail=str(e))
 
 def sanitize_image(img: Image.Image) -> Image.Image:
@@ -302,6 +393,9 @@ async def api_sanitize(file: UploadFile = File(...)):
         clean_img.save(img_io, format="PNG")
         img_io.seek(0)
         
+        # Record successful operation
+        record_operation("sanitize", True, f"Sanitized {file.name}")
+        
         return StreamingResponse(
             img_io,
             media_type="image/png",
@@ -310,6 +404,7 @@ async def api_sanitize(file: UploadFile = File(...)):
             }
         )
     except Exception as e:
+        record_operation("sanitize", False, str(e))
         raise HTTPException(status_code=400, detail=str(e))
 
 if __name__ == "__main__":
