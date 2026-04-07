@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
-import { Download, Upload, Lock, Unlock, Zap, Activity, Shield, Hash, Search, FileText, XCircle, CheckCircle2, AlertTriangle, Eye, EyeOff, Trash2, ShieldAlert, BarChart2, ShieldOff } from 'lucide-react';
+import { Download, Upload, Lock, Unlock, Zap, Activity, Shield, Hash, Search, FileText, XCircle, CheckCircle2, AlertTriangle, Eye, EyeOff, Trash2, ShieldAlert, BarChart2, ShieldOff, Terminal } from 'lucide-react';
 import { format } from 'date-fns';
 import API_BASE from './config';
 import Dashboard from './components/Dashboard';
+import Algorithms from './components/Algorithms';
 
 // ---------- Matrix Rain Canvas ----------
 function MatrixRain() {
@@ -603,13 +604,22 @@ export default function App() {
                   <Activity size={12} className="text-cyan-500" />
                   <span className="text-cyan-500/80">API LINK: ESTABLISHED</span>
                 </div>
-                <button
-                  className="flex items-center gap-2 bg-black/40 border border-green-900/50 px-3 py-1.5 cursor-pointer hover:bg-green-900/20 transition-colors"
-                  onClick={() => { setShowHistory(!showHistory); navigate(showHistory ? '/StegoSphere' : '/StegoSphere/history'); }}
-                >
-                  <FileText size={12} className={showHistory ? 'text-green-400' : 'text-green-700'} />
-                  <span className={showHistory ? 'text-green-400' : 'text-green-700'}>OP_HISTORY_LOG [{operationsHistory.length}]</span>
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    className="flex items-center gap-2 bg-black/40 border border-green-900/50 px-3 py-1.5 cursor-pointer hover:bg-green-900/20 transition-colors"
+                    onClick={() => { setShowHistory(!showHistory); navigate(showHistory ? '/StegoSphere' : '/StegoSphere/history'); }}
+                  >
+                    <FileText size={12} className={showHistory ? 'text-green-400' : 'text-green-700'} />
+                    <span className={showHistory ? 'text-green-400' : 'text-green-700'}>OP_HISTORY_LOG [{operationsHistory.length}]</span>
+                  </button>
+                  <button
+                    className="flex items-center gap-2 bg-black/40 border border-cyan-900/50 px-3 py-1.5 cursor-pointer hover:bg-cyan-900/20 transition-colors"
+                    onClick={() => navigate('/StegoSphere/algorithms')}
+                  >
+                    <Terminal size={12} className="text-cyan-700" />
+                    <span className="text-cyan-700">ALGORITHMS</span>
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -1156,6 +1166,11 @@ export default function App() {
       {/* Dashboard Route */}
       <Route path="/StegoSphere/dashboard" element={
         <Dashboard onNavigate={navigateToTab} />
+      } />
+
+      {/* Algorithms Route */}
+      <Route path="/StegoSphere/algorithms" element={
+        <Algorithms />
       } />
 
       {/* Catch-all redirect */}

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Lock, Unlock, Activity, Shield, Zap, FileText, ArrowRight, Clock, TrendingUp, CheckCircle2, AlertTriangle, Layers, Folder, History } from 'lucide-react';
+import { Lock, Unlock, Activity, Shield, Zap, FileText, ArrowRight, Clock, TrendingUp, CheckCircle2, AlertTriangle, Layers, Folder, History, Hash } from 'lucide-react';
 import { format } from 'date-fns';
 import API_BASE from '../config';
 
@@ -382,17 +382,17 @@ export default function Dashboard({ onNavigate }) {
               />
               <QuickAction
                 icon={Layers}
-                title="Batch Process"
-                description="Handle multiple images simultaneously"
+                title="Analyze Images"
+                description="Run structural analysis on images"
                 color="yellow"
-                onClick={() => onNavigate('batch')}
+                onClick={() => onNavigate('analyze')}
               />
               <QuickAction
-                icon={History}
-                title="View History"
-                description="Browse complete operation records"
-                color="green"
-                onClick={() => {}}
+                icon={Hash}
+                title="Learn Algorithms"
+                description="View technical documentation"
+                color="cyan"
+                onClick={() => window.location.href = '/StegoSphere/algorithms'}
               />
             </div>
 

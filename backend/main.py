@@ -284,7 +284,7 @@ async def api_encode(
         img_io.seek(0)
         
         # Record successful operation
-        record_operation("encode", True, f"Secured {len(message)} bytes into {file.name}")
+        record_operation("encode", True, f"Secured {len(message)} bytes into {file.filename}")
         
         # Return as downloadable PNG
         return StreamingResponse(
