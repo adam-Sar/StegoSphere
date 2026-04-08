@@ -358,7 +358,7 @@ async def api_analyze(file: UploadFile = File(...)):
         stego_suspected = lsb_entropy > 0.95
         
         # Record successful operation
-        record_operation("analyze", True, f"Analyzed {file.fileame} ({width}x{height})")
+        record_operation("analyze", True, f"Analyzed {file.filename} ({width}x{height})")
         
         return {
             "success": True,
