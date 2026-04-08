@@ -309,7 +309,7 @@ async def api_decode(
         secret_message = extract_message(img, password)
         
         # Record successful operation
-        record_operation("decode", True, f"Extracted {len(secret_message)} chars from {file.name}")
+        record_operation("decode", True, f"Extracted {len(secret_message)} chars from {file.filename}")
         
         return {"success": True, "message": secret_message}
     except Exception as e:
@@ -358,7 +358,7 @@ async def api_analyze(file: UploadFile = File(...)):
         stego_suspected = lsb_entropy > 0.95
         
         # Record successful operation
-        record_operation("analyze", True, f"Analyzed {file.name} ({width}x{height})")
+        record_operation("analyze", True, f"Analyzed {file.nfileame} ({width}x{height})")
         
         return {
             "success": True,
@@ -394,7 +394,7 @@ async def api_sanitize(file: UploadFile = File(...)):
         img_io.seek(0)
         
         # Record successful operation
-        record_operation("sanitize", True, f"Sanitized {file.name}")
+        record_operation("sanitize", True, f"Sanitized {file.filename}")
         
         return StreamingResponse(
             img_io,
